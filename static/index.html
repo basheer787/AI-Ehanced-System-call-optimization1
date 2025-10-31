@@ -1,0 +1,51 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <title> AI-Enhanced System Call Optimization.</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <link rel="stylesheet" href="style.css" />
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+</head>
+<body>
+  <div class="container">
+    <h1>Implement AI-techniques to optimize system call processing and reduce latency in OS.</h1>
+    <p class="muted">Simulation-based educational prototype: trains a small model on synthetic syscall sequences and shows AI optimization effects.</p>
+
+    <div class="controls">
+      <button id="trainBtn">Train Model</button>
+      <button id="startBtn">Start Simulation</button>
+      <button id="pauseBtn" disabled>Pause</button>
+      <button id="resetBtn">Reset</button>
+
+      <label>Speed:
+        <select id="speedSelect">
+          <option value="300">Slow</option>
+          <option value="180" selected>Normal</option>
+          <option value="80">Fast</option>
+        </select>
+      </label>
+    </div>
+
+    <div class="grid">
+      <div class="panel">
+
+        <h3>Latency Chart</h3>
+        <canvas id="latencyChart"></canvas>
+      </div>
+
+      <div class="panel small">
+        <h3>Stats</h3>
+        <div>Steps: <span id="steps">0</span></div>
+        <div>AI applied: <span id="aiCount">0</span></div>
+        <div>Model status: <span id="modelStatus">idle</span></div>
+        <div>Latest prediction: <span id="latestPred">—</span></div>
+        <h4>Log</h4>
+        <div id="log" class="log"></div>
+      </div>
+    </div>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
