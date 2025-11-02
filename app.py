@@ -1,3 +1,4 @@
+# Commit date: 2023-10-10 - Added comments for clarity
 
 # app.py
 from flask import Flask, request, jsonify, send_from_directory
@@ -21,6 +22,7 @@ model = None
 
 # Helper: encode history -> flattened one-hot
 def encode_history(history):
+    """Encodes the syscall history into a one-hot encoded format."""
     # history is list of syscall names of length HISTORY_LEN
     depth = len(SYSCALLS)
     idx_map = {s:i for i,s in enumerate(SYSCALLS)}
@@ -34,7 +36,8 @@ def encode_history(history):
 
 # Synthetic data generator (same logic as frontend's patterns)
 def generate_sequences(num_seq=1500, seq_len=30):
-    rng = np.random.RandomState(123)
+    """Generates synthetic sequences of syscalls for training."""
+    rng = np.random.RandomState(123)  # Fixed random state for reproducibility
     X = []
     Y = []
     for s in range(num_seq):
@@ -70,6 +73,7 @@ def generate_sequences(num_seq=1500, seq_len=30):
 
 @app.route("/train", methods=["POST"])
 def train():
+    """Trains the RandomForest model on generated sequences."""
     global model
     # optional: accept params in JSON
     data = request.get_json(silent=True) or {}
@@ -88,6 +92,7 @@ def train():
 
 @app.route("/predict", methods=["POST"])
 def predict():
+    """Predicts the next syscall based on the provided history."""
     global model
     body = request.get_json(force=True)
     history = body.get("history", [])
@@ -112,6 +117,7 @@ def predict():
 @app.route("/", defaults={"path": ""})
 @app.route("/<path:path>")
 def serve(path):
+    """Serves static files for the frontend."""
     # serve static frontend files
     if path != "" and os.path.exists(os.path.join(app.static_folder, path)):
         return send_from_directory(app.static_folder, path)
@@ -120,6 +126,7 @@ def serve(path):
 
 if __name__ == "__main__":
     # auto-load model if present
+    # This block ensures the model is loaded when the app starts
     if os.path.exists(MODEL_PATH):
         try:
             model = load(MODEL_PATH)
