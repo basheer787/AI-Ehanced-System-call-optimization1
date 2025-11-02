@@ -1,18 +1,22 @@
- 
+<!-- No-op commit: added harmless comment to trigger a change for GitHub tracking (does not affect page behavior) -->
 <!doctype html>
 <html>
 <head>
+  <!-- Meta and third-party libs -->
   <meta charset="utf-8" />
   <title> AI-Enhanced System Call Optimization.</title>
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <link rel="stylesheet" href="style.css" />
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+  <!-- Chart.js is loaded for rendering the latency chart -->
 </head>
 <body>
   <div class="container">
+    <!-- Page header / description -->
     <h1>Implement AI-techniques to optimize system call processing and reduce latency in OS.</h1>
     <p class="muted">Simulation-based educational prototype: trains a small model on synthetic syscall sequences and shows AI optimization effects.</p>
 
+    <!-- UI Controls: buttons to train the model and control simulation -->
     <div class="controls">
       <button id="trainBtn">Train Model</button>
       <button id="startBtn">Start Simulation</button>
@@ -30,12 +34,13 @@
 
     <div class="grid">
       <div class="panel">
-
+        <!-- Latency Chart: canvas below visualizes simulated latency over time -->
         <h3>Latency Chart</h3>
         <canvas id="latencyChart"></canvas>
       </div>
 
       <div class="panel small">
+        <!-- Stats Panel: shows steps, AI application count, model status and log -->
         <h3>Stats</h3>
         <div>Steps: <span id="steps">0</span></div>
         <div>AI applied: <span id="aiCount">0</span></div>
@@ -47,6 +52,7 @@
     </div>
   </div>
 
+  <!-- App script: main frontend logic to drive the simulation and interact with /train and /predict -->
   <script src="app.js"></script>
 </body>
 </html>
