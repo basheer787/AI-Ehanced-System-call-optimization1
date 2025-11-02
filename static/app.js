@@ -213,3 +213,59 @@ function startLoop() {
 // startup defaults
 modelStatusEl.textContent = 'idle';
 updateStats();
+
+// Added helpers: non-invasive utilities for logging and safe fetch requests.
+// These functions are safe to include and won't change behavior unless invoked.
+
+/**
+ * formatTimestamp
+ * Returns a human-readable time string for log entries.
+ */
+function formatTimestamp(date = new Date()) {
+  try {
+    return date.toLocaleTimeString();
+  } catch (e) {
+    return String(date);
+  }
+}
+
+/**
+ * safeFetch
+ * A small wrapper around fetch that catches network errors and returns a structured result.
+ * Usage: const r = await safeFetch('/train', { method: 'POST', body: ... });
+ * r.ok === true => r.data contains parsed JSON (if any)
+ */
+async function safeFetch(url, options) {
+  try {
+    const res = await fetch(url, options);
+    const contentType = res.headers.get('content-type') || '';
+    const body = contentType.includes('application/json')
+      ? await res.json().catch(() => null)
+      : await res.text().catch(() => null);
+
+    if (!res.ok) {
+      console.error('safeFetch error:', url, res.status, body);
+      return { ok: false, status: res.status, body };
+    }
+    return { ok: true, status: res.status, data: body };
+  } catch (err) {
+    console.error('safeFetch network error:', err);
+    return { ok: false, error: String(err) };
+  }
+}
+
+/**
+ * appendLog
+ * Prepends a simple timestamped message to the #log element if present.
+ */
+function appendLog(msg) {
+  try {
+    const logEl = document.getElementById('log');
+    if (!logEl) return;
+    const entry = document.createElement('div');
+    entry.textContent = `[${formatTimestamp()}] ${msg}`;
+    logEl.prepend(entry);
+  } catch (e) {
+    console.error('appendLog error:', e);
+  }
+}
