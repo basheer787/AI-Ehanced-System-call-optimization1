@@ -269,3 +269,152 @@ function appendLog(msg) {
     console.error('appendLog error:', e);
   }
 }
+
+// Added: UI wiring, Chart.js init, simulation loop and integration with safeFetch/appendLog
+
+document.addEventListener('DOMContentLoaded', () => {
+  const trainBtn = document.getElementById('trainBtn');
+  const startBtn = document.getElementById('startBtn');
+  const pauseBtn = document.getElementById('pauseBtn');
+  const resetBtn = document.getElementById('resetBtn');
+  const speedSelect = document.getElementById('speedSelect');
+  const stepsEl = document.getElementById('steps');
+  const aiCountEl = document.getElementById('aiCount');
+  const modelStatusEl = document.getElementById('modelStatus');
+  const latestPredEl = document.getElementById('latestPred');
+
+  const SYSCALLS = ['read','write','open','close','stat','mmap','fork','exec'];
+
+  // Chart.js setup
+  const ctx = document.getElementById('latencyChart').getContext('2d');
+  const latencyData = { labels: [], datasets: [{ label: 'Latency (ms)', data: [], borderColor: '#60a5fa', backgroundColor: 'rgba(96,165,250,0.08)', tension: 0.3 }] };
+  const latencyChart = new Chart(ctx, { type: 'line', data: latencyData, options: { responsive: true, maintainAspectRatio: false, animation: { duration: 200 } } });
+
+  // simulation state
+  let intervalId = null;
+  let stepCount = 0;
+  let aiApplied = 0;
+  let history = []; // last N syscalls
+  const HISTORY_LEN = 6;
+
+  function updateStats() {
+    stepsEl.textContent = String(stepCount);
+    aiCountEl.textContent = String(aiApplied);
+  }
+
+  function pushLatency(val) {
+    const now = new Date().toLocaleTimeString();
+    latencyData.labels.push(now);
+    latencyData.datasets[0].data.push(val);
+    if (latencyData.labels.length > 80) {
+      latencyData.labels.shift();
+      latencyData.datasets[0].data.shift();
+    }
+    latencyChart.update();
+  }
+
+  async function doPredictAndApply() {
+    try {
+      // call backend predict; if model not trained, backend returns error
+      const res = await safeFetch('/predict', { method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify({ history }) });
+      if (!res.ok) {
+        appendLog('Predict failed: ' + (res.body?.error || res.error || res.status));
+        modelStatusEl.textContent = 'no model';
+        return;
+      }
+      const data = res.data || res.body;
+      const pred = data?.prediction;
+      latestPredEl.textContent = pred || '—';
+      appendLog('Predicted: ' + pred);
+      aiApplied += 1;
+      // simulate latency improvement when prediction is applied (small randomized effect)
+      const baseLatency = 60 + Math.random()*60;
+      const improved = (pred === history[history.length-1]) ? baseLatency*0.75 : baseLatency*0.95;
+      pushLatency(Math.round(improved));
+      updateStats();
+      // update history: append predicted syscall (simulate that prediction was used)
+      history.push(pred);
+      if (history.length > HISTORY_LEN) history = history.slice(-HISTORY_LEN);
+    } catch (e) {
+      console.error(e);
+      appendLog('Prediction error: ' + String(e));
+    }
+  }
+
+  async function tickOnce() {
+    stepCount += 1;
+    // choose a random syscall to simulate new incoming activity if history empty
+    if (history.length < HISTORY_LEN) {
+      history.push(SYSCALLS[Math.floor(Math.random()*SYSCALLS.length)]);
+    }
+    // attempt to use AI prediction
+    await doPredictAndApply();
+    updateStats();
+  }
+
+  // Button handlers
+  trainBtn.addEventListener('click', async () => {
+    modelStatusEl.textContent = 'training...';
+    appendLog('Starting training...');
+    trainBtn.disabled = true;
+    const res = await safeFetch('/train', { method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify({ num_seq: 800, seq_len: 30, n_estimators: 80 }) });
+    trainBtn.disabled = false;
+    if (!res.ok) {
+      appendLog('Training failed: ' + (res.body?.error || res.error || res.status));
+      modelStatusEl.textContent = 'training failed';
+      return;
+    }
+    modelStatusEl.textContent = 'trained';
+    appendLog('Training completed. Samples: ' + (res.data?.samples || res.body?.samples || '?'));
+  });
+
+  startBtn.addEventListener('click', () => {
+    if (intervalId) return;
+    appendLog('Simulation started');
+    modelStatusEl.textContent = modelStatusEl.textContent === 'idle' ? 'ready' : modelStatusEl.textContent;
+    startBtn.disabled = true;
+    pauseBtn.disabled = false;
+    speedSelect.disabled = true;
+    // fast immediate tick
+    tickOnce();
+    intervalId = setInterval(tickOnce, Number(speedSelect.value));
+  });
+
+  pauseBtn.addEventListener('click', () => {
+    if (!intervalId) return;
+    clearInterval(intervalId);
+    intervalId = null;
+    appendLog('Simulation paused');
+    startBtn.disabled = false;
+    pauseBtn.disabled = true;
+    speedSelect.disabled = false;
+  });
+
+  resetBtn.addEventListener('click', () => {
+    if (intervalId) { clearInterval(intervalId); intervalId = null; }
+    stepCount = 0;
+    aiApplied = 0;
+    history = [];
+    latencyData.labels = [];
+    latencyData.datasets[0].data = [];
+    latencyChart.update();
+    stepsEl.textContent = '0';
+    aiCountEl.textContent = '0';
+    latestPredEl.textContent = '—';
+    appendLog('Simulation reset');
+    startBtn.disabled = false;
+    pauseBtn.disabled = true;
+    speedSelect.disabled = false;
+  });
+
+  // allow speed change to adjust active interval
+  speedSelect.addEventListener('change', () => {
+    if (!intervalId) return;
+    clearInterval(intervalId);
+    intervalId = setInterval(tickOnce, Number(speedSelect.value));
+  });
+
+  // initial UI state
+  updateStats();
+  modelStatusEl.textContent = 'idle';
+});
