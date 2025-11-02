@@ -1,15 +1,62 @@
 /* style.css */
-body { font-family: Inter, Arial, sans-serif; background: #071024; color: #e6eef8; margin: 0; padding: 18px; }
-.container { max-width: 1100px; margin: 0 auto; }
-h1 { margin: 0 0 6px 0; font-size: 20px; }
+body {
+  font-family: Inter, Arial, sans-serif;
+  background: linear-gradient(180deg,#061226,#08172b);
+  color: #e6eef8;
+  margin: 0;
+  padding: 18px;
+}
+
+.container {
+  max-width: 1100px;
+  margin: 12px auto;
+  background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
+  border-radius: 12px;
+  padding: 18px;
+  box-shadow: 0 8px 30px rgba(0,0,0,0.55);
+}
+
+h1 { margin: 0 0 8px 0; font-size: 20px; }
 .muted { color: #94a3b8; margin-bottom: 12px; }
-.controls { display:flex; gap:10px; margin-bottom:12px; align-items:center; flex-wrap:wrap; }
-button { background: #60a5fa; border: none; padding: 8px 12px; border-radius:8px; cursor:pointer; color:#042132; }
+.controls {
+  display:flex;
+  gap:10px;
+  margin-bottom:12px;
+  align-items:center;
+  flex-wrap:wrap;
+}
+button {
+  background: #60a5fa;
+  border: none;
+  padding: 8px 12px;
+  border-radius:8px;
+  cursor:pointer;
+  color:#042132;
+  font-weight:600;
+}
 button:disabled { opacity: 0.5; cursor: not-allowed; }
 label { color:#cfe8ff; font-size:14px; }
-.grid { display:grid; grid-template-columns: 1fr 340px; gap:12px; }
-.panel { background: rgba(255,255,255,0.03); padding:12px; border-radius:10px; box-shadow: 0 6px 20px rgba(0,0,0,0.6); }
-.small { font-size:14px; }
-.log { max-height:320px; overflow:auto; background: rgba(0,0,0,0.2); padding:8px; border-radius:6px; margin-top:8px; font-family:monospace; font-size:13px; }
-.statItem { margin-bottom:6px; }
-/*end of style.css */
+.grid { display:grid; grid-template-columns: 1fr 340px; gap:14px; align-items:start; }
+.panel { background: rgba(255,255,255,0.03); padding:14px; border-radius:10px; box-shadow: 0 6px 16px rgba(0,0,0,0.55); }
+.panel.small { font-size:14px; }
+.chart-wrap { height: 300px; width: 100%; }
+.log {
+  max-height:320px;
+  overflow:auto;
+  background: rgba(0,0,0,0.18);
+  padding:8px;
+  border-radius:6px;
+  margin-top:8px;
+  font-family:monospace;
+  font-size:13px;
+  border: 1px solid rgba(255,255,255,0.02);
+}
+.log div { padding:6px 4px; border-bottom: 1px dashed rgba(255,255,255,0.02); }
+
+/* responsive */
+@media (max-width: 760px) {
+  .grid { grid-template-columns: 1fr; }
+  .chart-wrap { height: 220px; }
+}
+
+/* end of custom style tweaks */
