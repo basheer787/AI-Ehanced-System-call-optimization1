@@ -11,20 +11,20 @@
   <!-- Chart.js is loaded for rendering the latency chart -->
 </head>
 <body>
-  <div class="container">
+  <div class="container" role="main" aria-labelledby="pageTitle">
     <!-- Page header / description -->
-    <h1>Implement AI-techniques to optimize system call processing and reduce latency in OS.</h1>
+    <h1 id="pageTitle">Implement AI-techniques to optimize system call processing and reduce latency in OS.</h1>
     <p class="muted">Simulation-based educational prototype: trains a small model on synthetic syscall sequences and shows AI optimization effects.</p>
 
     <!-- UI Controls: buttons to train the model and control simulation -->
-    <div class="controls">
-      <button id="trainBtn">Train Model</button>
-      <button id="startBtn">Start Simulation</button>
-      <button id="pauseBtn" disabled>Pause</button>
-      <button id="resetBtn">Reset</button>
+    <div class="controls" role="toolbar" aria-label="Simulation controls">
+      <button id="trainBtn" aria-label="Train model">Train Model</button>
+      <button id="startBtn" aria-label="Start simulation">Start Simulation</button>
+      <button id="pauseBtn" aria-label="Pause simulation" disabled>Pause</button>
+      <button id="resetBtn" aria-label="Reset simulation">Reset</button>
 
-      <label>Speed:
-        <select id="speedSelect">
+      <label for="speedSelect">Speed:
+        <select id="speedSelect" aria-label="Simulation speed">
           <option value="300">Slow</option>
           <option value="180" selected>Normal</option>
           <option value="80">Fast</option>
@@ -36,10 +36,12 @@
       <div class="panel">
         <!-- Latency Chart: canvas below visualizes simulated latency over time -->
         <h3>Latency Chart</h3>
-        <canvas id="latencyChart"></canvas>
+        <div class="chart-wrap" aria-hidden="false">
+          <canvas id="latencyChart" role="img" aria-label="Latency chart"></canvas>
+        </div>
       </div>
 
-      <div class="panel small">
+      <div class="panel small" aria-live="polite">
         <!-- Stats Panel: shows steps, AI application count, model status and log -->
         <h3>Stats</h3>
         <div>Steps: <span id="steps">0</span></div>
@@ -47,7 +49,8 @@
         <div>Model status: <span id="modelStatus">idle</span></div>
         <div>Latest prediction: <span id="latestPred">—</span></div>
         <h4>Log</h4>
-        <div id="log" class="log"></div>
+        <!-- make log an aria-live region for announcements -->
+        <div id="log" class="log" role="log" aria-live="polite"></div>
       </div>
     </div>
   </div>
